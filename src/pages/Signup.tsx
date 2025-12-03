@@ -1,181 +1,228 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import Navbar from "@/components/Navbar";
-import Logo from "@/components/Logo";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+
+  const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
+    age: "",
+    gender: "",
+    height: "",
+    weight: "",
+    goal: "",
+    activity: "",
+    dietary: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fats: "",
   });
 
-  const passwordChecks = [
-    { label: "At least 8 characters", valid: formData.password.length >= 8 },
-    { label: "Contains a number", valid: /\d/.test(formData.password) },
-    { label: "Contains uppercase", valid: /[A-Z]/.test(formData.password) },
-  ];
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate signup - will be replaced with actual auth
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created!",
-        description: "Let's set up your profile.",
-      });
-      navigate("/details");
-    }, 1500);
+    // Save all signup details to localStorage
+    localStorage.setItem("user", JSON.stringify(form));
+
+    navigate("/login");
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="flex justify-center items-center min-h-screen bg-background">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-card p-8 rounded-xl shadow-md w-full max-w-2xl space-y-6 border border-border"
+      >
+        <h1 className="text-3xl font-bold text-center mb-4">Create Your Account</h1>
 
-      <div className="min-h-screen flex items-center justify-center px-4 pt-16 pb-8">
-        {/* Background decorations */}
-        <div className="absolute top-20 right-10 w-72 h-72 bg-mint/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-sage-light/20 rounded-full blur-3xl" />
+        {/* Basic Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            required
+            name="name"
+            placeholder="Full Name"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.name}
+            onChange={handleChange}
+          />
 
-        <Card className="w-full max-w-md relative z-10 shadow-lg border-border/50 animate-scale-in">
-          <CardHeader className="text-center pb-2">
-            <div className="flex justify-center mb-4">
-              <Logo size="lg" showText={false} />
-            </div>
-            <CardTitle className="text-2xl font-bold">Create Your Account</CardTitle>
-            <CardDescription>
-              Start your journey to better health today
-            </CardDescription>
-          </CardHeader>
+          <input
+            required
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.email}
+            onChange={handleChange}
+          />
 
-          <CardContent className="pt-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    className="pl-11"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+          <input
+            required
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.password}
+            onChange={handleChange}
+          />
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    className="pl-11"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+          <input
+            required
+            name="age"
+            type="number"
+            placeholder="Age"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.age}
+            onChange={handleChange}
+          />
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="pl-11 pr-11"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+          <select
+            required
+            name="gender"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.gender}
+            onChange={handleChange}
+          >
+            <option value="">Gender</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Other">Other</option>
+          </select>
 
-                {/* Password strength indicators */}
-                <div className="space-y-1 pt-2">
-                  {passwordChecks.map((check) => (
-                    <div key={check.label} className="flex items-center gap-2 text-sm">
-                      <div
-                        className={`h-4 w-4 rounded-full flex items-center justify-center transition-colors ${
-                          check.valid ? "bg-primary" : "bg-muted"
-                        }`}
-                      >
-                        {check.valid && <Check className="h-3 w-3 text-primary-foreground" />}
-                      </div>
-                      <span className={check.valid ? "text-foreground" : "text-muted-foreground"}>
-                        {check.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <input
+            required
+            name="height"
+            type="number"
+            placeholder="Height (cm)"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.height}
+            onChange={handleChange}
+          />
 
-              <Button
-                type="submit"
-                variant="sage"
-                size="lg"
-                className="w-full"
-                disabled={isLoading || !passwordChecks.every((c) => c.valid)}
-              >
-                {isLoading ? (
-                  <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Create Account
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </form>
+          <input
+            required
+            name="weight"
+            type="number"
+            placeholder="Weight (kg)"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.weight}
+            onChange={handleChange}
+          />
+        </div>
 
-            <p className="mt-4 text-xs text-center text-muted-foreground">
-              By creating an account, you agree to our{" "}
-              <Link to="/terms" className="text-primary hover:underline">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="text-primary hover:underline">
-                Privacy Policy
-              </Link>
-            </p>
+        {/* Goals */}
+        <h2 className="text-xl font-semibold">Your Goals</h2>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link to="/login" className="text-primary font-medium hover:underline">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <select
+            required
+            name="goal"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.goal}
+            onChange={handleChange}
+          >
+            <option value="">Goal Type</option>
+            <option value="Lose Weight">Lose Weight</option>
+            <option value="Gain Weight">Gain Weight</option>
+            <option value="Maintain">Maintain Weight</option>
+            <option value="Muscle Gain">Muscle Gain</option>
+          </select>
+
+          <select
+            required
+            name="activity"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.activity}
+            onChange={handleChange}
+          >
+            <option value="">Activity Level</option>
+            <option value="Sedentary">Sedentary</option>
+            <option value="Lightly Active">Lightly Active</option>
+            <option value="Active">Active</option>
+            <option value="Very Active">Very Active</option>
+          </select>
+
+          <input
+            required
+            name="calories"
+            type="number"
+            placeholder="Daily Calorie Goal"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.calories}
+            onChange={handleChange}
+          />
+
+          <input
+            required
+            name="protein"
+            type="number"
+            placeholder="Daily Protein Goal (g)"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.protein}
+            onChange={handleChange}
+          />
+
+          <input
+            required
+            name="carbs"
+            type="number"
+            placeholder="Daily Carb Goal (g)"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.carbs}
+            onChange={handleChange}
+          />
+
+          <input
+            required
+            name="fats"
+            type="number"
+            placeholder="Daily Fat Goal (g)"
+            className="px-4 py-2 border rounded-lg bg-muted w-full"
+            value={form.fats}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Preferences */}
+        <h2 className="text-xl font-semibold">Food Preferences</h2>
+
+        <select
+          required
+          name="dietary"
+          className="px-4 py-2 border rounded-lg bg-muted w-full"
+          value={form.dietary}
+          onChange={handleChange}
+        >
+          <option value="">Dietary Preference</option>
+          <option value="Veg">Veg</option>
+          <option value="Non-Veg">Non-Veg</option>
+          <option value="Vegan">Vegan</option>
+        </select>
+
+        <button
+          type="submit"
+          className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:opacity-90"
+        >
+          Create Account
+        </button>
+
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <span
+            className="text-primary cursor-pointer"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </span>
+        </p>
+      </form>
     </div>
   );
 };

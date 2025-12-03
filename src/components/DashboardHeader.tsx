@@ -1,15 +1,13 @@
-import { Bell, Search, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { User, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-interface DashboardHeaderProps {
-  title: string;
-  subtitle?: string;
-}
+const DashboardHeader = ({ title, subtitle }) => {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-const DashboardHeader = ({ title, subtitle }: DashboardHeaderProps) => {
   return (
-    <header className="bg-card border-b border-border px-6 py-4">
+    <header className="bg-card border-b border-border px-6 py-4 relative">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{title}</h1>
@@ -19,22 +17,35 @@ const DashboardHeader = ({ title, subtitle }: DashboardHeaderProps) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="w-64 pl-10"
-            />
-          </div>
-
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-coral rounded-full" />
-          </Button>
-
-          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-sage-light">
+          {/* Account Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            className="h-10 w-10 rounded-full bg-sage-light flex items-center justify-center"
+          >
             <User className="h-5 w-5 text-primary" />
-          </Button>
+          </button>
+
+          {/* Dropdown */}
+          {open && (
+            <div className="absolute right-6 top-16 w-40 bg-card border border-border rounded-lg shadow-md z-50">
+              <button
+                onClick={() => {
+                  navigate("/profile");
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-muted"
+              >
+                Profile
+              </button>
+
+              <button
+                onClick={() => navigate("/")}
+                className="w-full text-left px-4 py-2 text-red-500 hover:bg-muted"
+              >
+                Log Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
