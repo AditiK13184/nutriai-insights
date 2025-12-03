@@ -38,23 +38,40 @@ const FoodAnalysis = () => {
     
     setIsAnalyzing(true);
     
-    // Simulated AI analysis - will be replaced with actual API call
-    setTimeout(() => {
-      setNutritionData({
-        name: "Grilled Chicken Salad",
-        calories: 350,
-        protein: 35,
-        carbs: 15,
-        fats: 18,
-        fiber: 5,
-        sugar: 8,
-      });
-      setIsAnalyzing(false);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-food`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ imageBase64: image }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze food');
+      }
+
+      const data = await response.json();
+      setNutritionData(data);
       toast({
         title: "Analysis complete!",
-        description: "We've identified your meal and calculated the nutrition.",
+        description: `We've identified ${data.name} and calculated the nutrition.`,
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Food analysis error:', error);
+      toast({
+        title: "Analysis failed",
+        description: error instanceof Error ? error.message : "Could not analyze the food image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const clearImage = () => {
