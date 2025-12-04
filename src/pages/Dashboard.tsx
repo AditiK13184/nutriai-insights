@@ -1,15 +1,19 @@
 import DashboardHeader from "@/components/DashboardHeader";
 import NutriChat from "@/components/NutriChat";
 import FoodAnalysis from "@/components/FoodAnalysis";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Flame, Beef, Wheat, Droplets, Target, TrendingUp } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Flame, Beef, Wheat, Droplets } from "lucide-react";
 
 const Dashboard = () => {
+  // Read user data from localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  // Convert strings → numbers safely
   const todayStats = {
-    calories: { current: 1450, target: 2000 },
-    protein: { current: 85, target: 120 },
-    carbs: { current: 150, target: 250 },
-    fats: { current: 45, target: 65 },
+    calories: { current: Number(user.calories) || 0, target: Number(user.caloriesGoal) || 2000 },
+    protein: { current: Number(user.protein) || 0, target: Number(user.proteinGoal) || 120 },
+    carbs: { current: Number(user.carbs) || 0, target: Number(user.carbsGoal) || 250 },
+    fats: { current: Number(user.fats) || 0, target: Number(user.fatsGoal) || 65 },
   };
 
   const statsCards = [
@@ -64,29 +68,37 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {statsCards.map((stat) => {
             const percentage = Math.round((stat.current / stat.target) * 100);
+
             return (
               <Card key={stat.label} className="border-border/50">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
+
+                    {/* Icon Box */}
                     <div
                       className={`h-10 w-10 rounded-xl ${stat.bgColor} flex items-center justify-center`}
                     >
                       <stat.icon className={`h-5 w-5 ${stat.color}`} />
                     </div>
+
                     <span className="text-xs text-muted-foreground">
                       {percentage}%
                     </span>
                   </div>
+
+                  {/* Main numbers */}
                   <div className="text-2xl font-bold text-foreground">
                     {stat.current}
                     <span className="text-sm font-normal text-muted-foreground ml-1">
                       / {stat.target} {stat.unit}
                     </span>
                   </div>
+
                   <div className="text-sm text-muted-foreground mt-1">
                     {stat.label}
                   </div>
 
+                  {/* Progress bar */}
                   <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
@@ -107,39 +119,6 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="h-4 w-4 text-primary" />
-                Today's Goal Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">72%</div>
-              <p className="text-sm text-muted-foreground">
-                You're doing great! Keep it up to reach your daily targets.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Weekly Streak
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">5 days 🔥</div>
-              <p className="text-sm text-muted-foreground">
-                Amazing consistency! 2 more days to complete the week.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* AI + Scanner */}
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="h-[500px]">
@@ -149,6 +128,7 @@ const Dashboard = () => {
             <FoodAnalysis />
           </div>
         </div>
+
       </main>
     </div>
   );
