@@ -1,66 +1,80 @@
 import { useState } from "react";
+import { askGemini } from "@/lib/geminiChat";
 
-const Chat = () => {
-  const [messages, setMessages] = useState<any[]>([]);
+interface Message {
+  sender: "user" | "ai";
+  text: string;
+}
+
+export default function Chat() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const sendMessage = async () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  async function sendMessage() {
+    if (!input.trim() || loading) return;
 
-    const userMessage = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage = input.trim();
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: input }] }],
-        }),
-      }
-    );
-
-    const data = await res.json();
-    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
-
-    setMessages((prev) => [...prev, { role: "bot", text: botText }]);
+    // show user message immediately
+    setMessages(prev => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
-  };
+    setLoading(true);
+
+    // get AI reply
+    const aiReply = await askGemini(userMessage);
+
+    setMessages(prev => [...prev, { sender: "ai", text: aiReply }]);
+
+    setLoading(false);
+  }
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-3xl font-bold mb-4">NutriAI Chat</h1>
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center">NutriAI Chat</h1>
 
-      <div className="border rounded-xl p-4 h-[400px] overflow-y-auto flex flex-col gap-3">
-        {messages.map((m, i) => (
+      {/* MESSAGES */}
+      <div className="h-[400px] overflow-y-auto border rounded p-3 bg-white mb-4 space-y-3">
+        {messages.map((msg, index) => (
           <div
-            key={i}
-            className={`p-3 rounded-xl ${
-              m.role === "user" ? "bg-primary/20 self-end" : "bg-muted"
+            key={index}
+            className={`p-2 rounded-md ${
+              msg.sender === "user"
+                ? "bg-blue-100 text-blue-900 self-end"
+                : "bg-green-100 text-green-900"
             }`}
           >
-            {m.text}
+            <strong>{msg.sender === "user" ? "You" : "NutriAI"}:</strong>{" "}
+            {msg.text}
           </div>
         ))}
+
+        {loading && (
+          <div className="bg-gray-200 p-2 rounded-md text-gray-700">
+            NutriAI is thinking…
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-3">
+      {/* INPUT + BUTTON */}
+      <div className="flex gap-2">
         <input
-          className="border p-2 rounded-xl flex-1"
+          type="text"
+          className="flex-1 border p-2 rounded"
+          placeholder="Ask about food, calories, diet, etc…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask something..."
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
+
         <button
           onClick={sendMessage}
-          className="bg-primary text-white px-4 rounded-xl"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Send
         </button>
       </div>
     </div>
   );
-};
-
-export default Chat;
+}
